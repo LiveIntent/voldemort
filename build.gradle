@@ -1,14 +1,8 @@
-apply plugin: 'java'
-apply plugin: 'war'
-
-buildscript {
-    repositories { jcenter() }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-    }
+plugins {
+    id 'java'
+    id 'war'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
-
-apply plugin: 'com.github.johnrengelman.shadow'
 
 def String getProjectProperty(String propertyName) {
     String propertyValue = "null"
@@ -73,6 +67,7 @@ allprojects {
         maven {
             // For BDB-Je dependencies
             url "http://download.oracle.com/maven/"
+            allowInsecureProtocol = true
         }
     }
 
@@ -95,7 +90,7 @@ sourceSets {
             srcDirs = [javaDir]
             include '**/*.xsd'
         }
-        output.classesDir = classesDir
+        output.classesDirs.from = classesDir
         output.resourcesDir = resourcesDir
     }
     test {
@@ -107,7 +102,7 @@ sourceSets {
                 longTestSrcDir
             ]
         }
-        output.classesDir = voldTestClassesDir
+        output.classesDirs.from = voldTestClassesDir
     }
 }
 
@@ -253,7 +248,7 @@ task protobufJar(type: ShadowJar) {
         configurations.runtime.each { exclude(dependency(it)) }
     }
 
-    configurations = [ project.configurations.runtime ]
+    configurations = [ project.configurations.runtimeClasspath ]
 
     from sourceSets.main.output
     destinationDir = project.file(distDir)
@@ -277,7 +272,7 @@ task copyDeps(type: Copy) {
     // note this only copies the dependencies of the root
     // project into /lib if we start adding compile deps to
     // subprojects will have to rethink
-    from { configurations.compile }
+    from configurations.compileClasspath
     into "lib"
 }
 
@@ -461,11 +456,13 @@ allprojects {
     }
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '2.9' }
+wrapper { 
+    gradleVersion = '7.4.2' 
+}
 
 dependencies {
     // Avro serialization format
-    compile depAvro
+    implementation depAvro
 
     // INTERNAL_LIBS azkaban version not found
     // azkaban-common-0.05.jar
@@ -474,7 +471,7 @@ dependencies {
     // catalina-ant.jar , version not found in maven central
 
     // coders decoders containing the Base64,binary encoding
-    compile 'commons-codec:commons-codec:1.4'
+    implementation 'commons-codec:commons-codec:1.4'
 
     // TRANSITIVE_DEPENDENCY Contrib jar depends on commons-configuration-1.6.jar
     // commons-configuration instead depends on commons-collection
@@ -482,109 +479,109 @@ dependencies {
 
     // Used by MySql storage engine classes
     // The jar supports database connection pooling
-    compile 'commons-dbcp:commons-dbcp:1.2.2'
+    implementation 'commons-dbcp:commons-dbcp:1.2.2'
 
     // commons io is used at many places
     // IOUtils, FileUtils and ByteArrayOutputStream
-    compile 'commons-io:commons-io:2.1'
+    implementation 'commons-io:commons-io:2.1'
 
     // LZF compression strategy for store and tests.
-    compile 'com.ning:compress-lzf:0.9.1'
+    implementation 'com.ning:compress-lzf:0.9.1'
 
     // Used all over the place for collections
-    compile depGuava
+    implementation depGuava
 
     // used for readonly store hdfs fetcher.
-    compile 'org.apache.hadoop:hadoop-auth:2.3.0-cdh5.1.5'
+    implementation 'org.apache.hadoop:hadoop-auth:2.3.0-cdh5.1.5'
 
     // used at lots of places. Seems like there is some overlap between httpclient and core, but not clear
-    compile 'org.apache.httpcomponents:httpclient:4.1.2'
+    implementation 'org.apache.httpcomponents:httpclient:4.1.2'
 
     // contains both http server and client functionalities. Used for HttpResponse but could be used at more places.
-    compile 'org.apache.httpcomponents:httpcore:4.1.2'
+    implementation 'org.apache.httpcomponents:httpcore:4.1.2'
 
     // JSON mapping library from Java Objects to JSON
-    compile depJacksonMapper
+    implementation depJacksonMapper
 
     // JSON processing library
-    compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
+    implementation 'org.codehaus.jackson:jackson-core-asl:1.9.13'
 
     // Used for reading XML files and Document.
-    compile depJdom
+    implementation depJdom
 
     // Jetty is used for HttpService and tests. Jetty Util is used for QueuedThreadPool class.
-    compile 'org.mortbay.jetty:jetty-util:6.1.18'
-    compile 'org.mortbay.jetty:jetty:6.1.18'
+    implementation 'org.mortbay.jetty:jetty-util:6.1.18'
+    implementation 'org.mortbay.jetty:jetty:6.1.18'
 
     // A line processing library for command line. No compile time dependency
     // Used by Voldemort shell
-    compile 'jline:jline:0.9.94'
+    implementation 'jline:jline:0.9.94'
 
     // jna is library for invoking native functions
     // used in the readonly store
-    compile 'net.java.dev.jna:jna:3.2.7'
+    implementation 'net.java.dev.jna:jna:3.2.7'
 
     // joda time is replacement for Java Date and Time
     // used in readonly store code.
-    compile depJoda
+    implementation depJoda
 
     // Used for argument command line parsing
-    compile 'net.sf.jopt-simple:jopt-simple:4.6'
+    implementation 'net.sf.jopt-simple:jopt-simple:4.6'
 
     // log4j - logger used in almost all files
-    compile depLog4j
+    implementation depLog4j
 
     // used in readonly store and Co-ordinator
-    compile 'javax.mail:mail:1.4.1'
+    implementation 'javax.mail:mail:1.4.1'
 
     // Used in co-ordinator and rest services
-    compile 'io.netty:netty:3.5.8.Final'
+    implementation 'io.netty:netty:3.5.8.Final'
 
     // TRANSITIVE_DEPENDENCY Paranamer is a library that allows the parameter names of non-private methods and constructors to be accessed at runtime
     // Avro has a dependency on paranamer
     // compile 'com.thoughtworks.paranamer:paranamer:2.1'
 
     // protobuf is a supported protocol format between voldemort client and server
-    compile depProtoBuf
+    implementation depProtoBuf
 
     // Servlet
-    compile 'javax.servlet:servlet-api:2.5'
+    implementation 'javax.servlet:servlet-api:2.5'
 
     // slf4j is another logging abstraction framework.
     // It is used by the apache.avro, apache.hadoop and r2 clients
-    compile 'org.slf4j:slf4j-api:1.5.6'
-    compile 'org.slf4j:slf4j-log4j12:1.5.6'
+    implementation 'org.slf4j:slf4j-api:1.5.6'
+    implementation 'org.slf4j:slf4j-log4j12:1.5.6'
 
     // snappy is one of the supported compression strategies in voldemort
-    compile 'org.iq80.snappy:snappy:0.2'
+    implementation 'org.iq80.snappy:snappy:0.2'
 
     // Velocity is a simple yet powerful Java-based template engine that renders data
     // from plain Java objects to text, xml, email, SQL, Post Script, HTML etc
     // Velocity is used for Http Server GUI
-    compile 'org.apache.velocity:velocity:1.6.2'
+    implementation 'org.apache.velocity:velocity:1.6.2'
 
     // TRANSITIVE_DEPENDENCY Apache XML Parser
     // used by jdom
     // compile 'xerces:xercesImpl:2.9.1'
 
     // BDB-JE from Oracle
-    compile 'com.sleepycat:je:5.0.104'
+    implementation 'com.sleepycat:je:5.0.104'
 
     // cern library containing high performance Maps for int and double
     // Currently only used in the tests
-    testCompile 'colt:colt:1.2.0'
+    testImplementation 'colt:colt:1.2.0'
 
     // Used in resource pool perf testing class
-    testCompile 'commons-pool:commons-pool:1.5.2'
+    testImplementation 'commons-pool:commons-pool:1.5.2'
 
-    testRuntime 'mysql:mysql-connector-java:5.1.31'
+    testRuntimeOnly 'mysql:mysql-connector-java:5.1.31'
 
     // Used for unit tests and other automated testing
-    testCompile 'junit:junit:4.6'
+    testImplementation 'junit:junit:4.6'
 
     // Mockito is written by our beloved friend Szczepan Faber :)
     // Mocking framework used in some tests
-    testCompile 'org.mockito:mockito-all:1.8.5'
+    testImplementation 'org.mockito:mockito-all:1.8.5'
 
 //    contribCompile sourceSets.main.output
 //    contribCompile sourceSets.test.output
@@ -593,46 +590,46 @@ dependencies {
     // otherwise while copying dependencies to lib directory
     // conflict resolution is not done properly across sourceSets
     // and we end up with 2 versions of few jars like ( log4j, servlet etc. )
-    compile 'commons-configuration:commons-configuration:1.6'
-    compile('org.apache.hadoop:hadoop-core:2.3.0-mr1-cdh5.1.5') {
+    implementation 'commons-configuration:commons-configuration:1.6'
+    implementation('org.apache.hadoop:hadoop-core:2.3.0-mr1-cdh5.1.5') {
         exclude group: 'com.google.protobuf'
         exclude group: 'org.apache.avro'
     }
-    compile('org.apache.hadoop:hadoop-common:2.3.0-cdh5.1.5') {
+    implementation('org.apache.hadoop:hadoop-common:2.3.0-cdh5.1.5') {
         exclude group: 'com.google.protobuf'
         exclude group: 'org.apache.avro'
     }
-    compile('org.apache.hadoop:hadoop-hdfs:2.3.0-cdh5.1.5') {
+    implementation('org.apache.hadoop:hadoop-hdfs:2.3.0-cdh5.1.5') {
         exclude group: 'com.google.protobuf'
         exclude group: 'org.apache.avro'
     }
 
-    compile 'com.linkedin.pegasus:r2:1.8.3'
-    compile 'com.linkedin.pegasus:data:1.8.3'
-    compile 'com.linkedin.pegasus:pegasus-common:1.8.3'
-    compile depAzkaban
+    implementation 'com.linkedin.pegasus:r2:1.8.3'
+    implementation 'com.linkedin.pegasus:data:1.8.3'
+    implementation 'com.linkedin.pegasus:pegasus-common:1.8.3'
+    implementation depAzkaban
 
-    compile 'com.google.code.typica:typica:1.7.2'
-    compile 'com.sna-projects.krati:krati:0.4.9'
+    implementation 'com.google.code.typica:typica:1.7.2'
+    implementation 'com.sna-projects.krati:krati:0.4.9'
 
     // Metrics
-    compile depTehuti
-    testCompile 'io.tehuti:tehuti:0.7.0:test'
+    implementation depTehuti
+    testImplementation 'io.tehuti:tehuti:0.7.0:test'
 
     // Other libs...
-    compile 'org.apache.tomcat:catalina-ant:6.0.43'
-    compile 'org.apache.hadoop:libthrift:0.5.0.0'
+    implementation 'org.apache.tomcat:catalina-ant:6.0.43'
+    implementation 'org.apache.hadoop:libthrift:0.5.0.0'
 
     // rocksdb from maven
-    compile 'org.rocksdb:rocksdbjni:3.13.1'
+    implementation 'org.rocksdb:rocksdbjni:3.13.1'
 
     // Bouncy Castle Libaray
-    compile 'org.bouncycastle:bcprov-jdk15on:1.48'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.48'
 
     // Gobblin
-    compile 'com.linkedin.gobblin:gobblin-runtime:0.11.0', gobblinExcludes
-    compile 'com.linkedin.gobblin:gobblin-data-management:0.11.0', gobblinExcludes
-    compile 'com.linkedin.gobblin:gobblin-throttling-service-client:0.11.0', gobblinExcludes
+    implementation 'com.linkedin.gobblin:gobblin-runtime:0.11.0', gobblinExcludes
+    implementation 'com.linkedin.gobblin:gobblin-data-management:0.11.0', gobblinExcludes
+    implementation 'com.linkedin.gobblin:gobblin-throttling-service-client:0.11.0', gobblinExcludes
 }
 
 subprojects {
@@ -657,9 +654,9 @@ subprojects {
         }
     }
     dependencies {
-        compile rootProject
+        implementation rootProject
         // Used for unit tests and other automated testing
-        testCompile rootProject.sourceSets.test.runtimeClasspath
+        testImplementation rootProject.sourceSets.test.runtimeClasspath
     }
 
     tasks.withType(Test) {
