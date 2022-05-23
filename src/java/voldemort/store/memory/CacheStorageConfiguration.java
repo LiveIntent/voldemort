@@ -51,7 +51,10 @@ public class CacheStorageConfiguration implements StorageConfiguration {
     public StorageEngine<ByteArray, byte[], byte[]> getStore(StoreDefinition storeDef,
                                                              RoutingStrategy strategy) {
         ConcurrentMap<ByteArray, List<Versioned<byte[]>>> backingMap = 
-            CacheBuilder.newBuilder().<ByteArray, List<Versioned<byte[]>>>build().asMap();
+            CacheBuilder.newBuilder()
+                .softValues()
+                .<ByteArray, List<Versioned<byte[]>>>build()
+                .asMap();
 
         return new InMemoryStorageEngine<ByteArray, byte[], byte[]>(storeDef.getName(), backingMap);
     }
