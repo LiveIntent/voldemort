@@ -196,7 +196,7 @@ clean {
 // TODO: Decide if we want to do that for all dependencies, even if they're used just in Voldemort...
 
 def depAvro = 'org.apache.avro:avro:1.4.0'
-def depProtoBuf = 'com.google.protobuf:protobuf-java:2.3.0'
+def depProtoBuf = 'com.google.protobuf:protobuf-java:3.19.2'
 def depJdom = 'org.jdom:jdom:1.1'
 def depAzkaban = 'com.linkedin.azkaban:azkaban:2.5.0'
 def depGuava = 'com.google.guava:guava:14.0.1'
