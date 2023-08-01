@@ -1,14 +1,43 @@
-apply plugin: 'java'
-apply plugin: 'war'
-
 buildscript {
     repositories { jcenter() }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.+'
     }
 }
 
+apply plugin: 'java'
+apply plugin: 'war'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+
+artifactory {
+    contextUrl = 'https://liveintent.jfrog.io/liveintent'
+    publish {
+        defaults {
+            publications('mavenJava')
+        }
+        repository {
+            repoKey = 'sbt'
+            username = System.getenv('ARTIFACTORY_USERNAME')
+            password = System.getenv('ARTIFACTORY_PASSWORD')
+            maven = true
+        }
+    }
+}
+
+artifactoryPublish {
+    dependsOn shadowJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 def String getProjectProperty(String propertyName) {
     String propertyValue = "null"
