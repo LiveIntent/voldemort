@@ -27,16 +27,12 @@ artifactory {
     }
 }
 
-artifactoryPublish {
-    dependsOn shadowJar
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = 'voldemort'
             artifactId = 'voldemort'
-            from components.java
+            from components.shadow
         }
     }
 }
