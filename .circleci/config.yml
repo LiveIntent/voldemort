@@ -1,0 +1,26 @@
+version: 2.1
+
+jobs:
+  publish:
+    docker:
+      - image: cimg/openjdk:8.0-browsers
+    steps:
+      - checkout
+      - run:
+          name: publish
+          command: |
+            set +e
+            echo 'Publishing Voldemort artifacts...'
+            ./gradlew artifactoryPublish
+            echo 'Publishing complete!'
+
+workflows:
+  version: 2
+  publish:
+    jobs:
+      - publish:
+          name: publish
+          context: org-global-cph
+          filters:
+            branches:
+              only: master
