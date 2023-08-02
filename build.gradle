@@ -254,7 +254,7 @@ shadowJar {
         include(dependency(depProtoBuf))
         include(dependency(depJdom))
         include(dependency(depAzkaban))
-        include(dependency(depGuava))
+        // include(dependency(depGuava))
         include(dependency(depLog4j))
         include(dependency(depLog4jBridge))
         include(dependency(depJacksonMapper))
