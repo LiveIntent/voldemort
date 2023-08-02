@@ -21,6 +21,6 @@ workflows:
       - publish:
           name: publish
           context: org-global-cph
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
