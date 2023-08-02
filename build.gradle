@@ -34,6 +34,8 @@ artifactoryPublish {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            groupId = 'voldemort'
+            artifactId = 'voldemort'
             from components.java
         }
     }
