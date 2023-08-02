@@ -264,6 +264,12 @@ shadowJar {
     relocate 'com.google.protobuf', 'voldemort.shadow.2.3.0.com.google.protobuf'
     relocate 'org.apache.avro', 'voldemort.shadow.1.4.0.org.apache.avro'
     // TODO: find a way to exclude private lib's BDB-JE which gets pulled into the fat jar...
+
+    // exclude cruft
+    exclude('colt/**/*')
+    exclude('commons-pool/**/*')
+    exclude('org/junit/**/*')
+    exclude('org/mockito/**/*')
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
