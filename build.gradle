@@ -226,7 +226,7 @@ def depAvro = 'org.apache.avro:avro:1.4.0'
 def depProtoBuf = 'com.google.protobuf:protobuf-java:2.3.0'
 def depJdom = 'org.jdom:jdom:1.1'
 def depAzkaban = 'com.linkedin.azkaban:azkaban:2.5.0'
-def depGuava = 'com.google.guava:guava:14.0.1'
+def depGuava = 'com.google.guava:guava:32.1.2-jre'
 def depLog4j = 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
 def depLog4jBridge = 'org.apache.logging.log4j:log4j-1.2-api:2.20.0'
 def depJacksonMapper = 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
@@ -254,7 +254,7 @@ shadowJar {
         include(dependency(depProtoBuf))
         include(dependency(depJdom))
         include(dependency(depAzkaban))
-        // include(dependency(depGuava))
+        include(dependency(depGuava))
         include(dependency(depLog4j))
         include(dependency(depLog4jBridge))
         include(dependency(depJacksonMapper))
